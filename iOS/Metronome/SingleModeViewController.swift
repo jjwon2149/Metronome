@@ -21,6 +21,7 @@ class SingleModeViewController: UIViewController {
     // MARK: - Properties
     let mockData = Array(1...100)
     let rotationAngle: CGFloat! = -90  * (.pi/180)
+    var noteCount = 4
     
     // MARK: - UIComponents
     
@@ -28,7 +29,7 @@ class SingleModeViewController: UIViewController {
     private lazy var notesStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.distribution = .equalSpacing
+        stackView.distribution = .equalCentering
         return stackView
     }()
     
@@ -142,6 +143,7 @@ class SingleModeViewController: UIViewController {
         // Do any additional setup after loading the view.
         self.view.backgroundColor = .white
         setupUI()
+        setupNotesStackView(with: noteCount)
 //
 //        Clock.sync(completion:  { date, offset in
 //            guard let date = date, let offset = offset else {
@@ -192,6 +194,7 @@ class SingleModeViewController: UIViewController {
         NSLayoutConstraint.activate([
             notesStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             notesStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            notesStackView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.5),
             notesStackView.heightAnchor.constraint(equalToConstant: 60),
             
             addNoteButton.centerYAnchor.constraint(equalTo: notesStackView.centerYAnchor),
@@ -269,6 +272,18 @@ class SingleModeViewController: UIViewController {
     
     @objc func tappedSetting() {
         
+    }
+    
+    // MARK: - Methods
+    func setupNotesStackView(with noteCount: Int) {
+        notesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        for _ in 1...noteCount {
+            let note = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            note.image = UIImage(systemName: "circle.fill")
+            note.tintColor = .black
+            notesStackView.addArrangedSubview(note)
+        }
     }
 }
 
