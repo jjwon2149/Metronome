@@ -8,6 +8,14 @@
 import UIKit
 import Kronos
 
+extension UIView {
+    func addSubviews(_ views: UIView...) {
+        for view in views {
+            addSubview(view)
+        }
+    }
+}
+
 class SingleModeViewController: UIViewController {
     
     // MARK: - Properties
@@ -15,6 +23,38 @@ class SingleModeViewController: UIViewController {
     let rotationAngle: CGFloat! = -90  * (.pi/180)
     
     // MARK: - UIComponents
+    
+    /// notes 스택뷰
+    private lazy var notesStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+    
+    /// note 개수 추가 버튼
+    private lazy var addNoteButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.title = "+"
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedAddNote), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// note 개수 삭제 버튼
+    private lazy var removeNoteButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.title = "-"
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedRemoveNote), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     /// bpm 설정 피커뷰
     private lazy var bpmPickerView: UIPickerView = {
@@ -49,6 +89,52 @@ class SingleModeViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    /// 시작 버튼
+    private lazy var playButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "play.fill")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedPlay), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 노트 시각효과 on/off 버튼
+    private lazy var flashButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "flashlight.off.fill")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedFlash), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 노트 소리 설정 버튼
+    private lazy var settingButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "gearshape.fill")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedSetting), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// bpm 저장 테이블뷰
+    private lazy var savedBpmTableView: UITableView = {
+        let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.delegate = self
+        table.dataSource = self
+        return table
+    }()
+    
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
@@ -87,37 +173,101 @@ class SingleModeViewController: UIViewController {
         
     }
     
-    // MARK: - Methods
+    // MARK: - UI & Layouts
     
     func setupUI() {
-        view.addSubview(bpmPickerView)
-        view.addSubview(minusTenBpmButton)
-        view.addSubview(plusTenBpmButton)
+        view.addSubviews(
+            notesStackView,
+            addNoteButton,
+            removeNoteButton,
+            bpmPickerView,
+            minusTenBpmButton,
+            plusTenBpmButton,
+            playButton,
+            flashButton,
+            settingButton,
+            savedBpmTableView
+        )
         
         NSLayoutConstraint.activate([
-            bpmPickerView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            bpmPickerView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            notesStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            notesStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            notesStackView.heightAnchor.constraint(equalToConstant: 60),
+            
+            addNoteButton.centerYAnchor.constraint(equalTo: notesStackView.centerYAnchor),
+            addNoteButton.trailingAnchor.constraint(equalTo: notesStackView.leadingAnchor, constant: -10),
+            addNoteButton.widthAnchor.constraint(equalToConstant: 44),
+            addNoteButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            removeNoteButton.centerYAnchor.constraint(equalTo: notesStackView.centerYAnchor),
+            removeNoteButton.leadingAnchor.constraint(equalTo: notesStackView.trailingAnchor, constant: 10),
+            removeNoteButton.widthAnchor.constraint(equalToConstant: 44),
+            removeNoteButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            bpmPickerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            bpmPickerView.topAnchor.constraint(equalTo: notesStackView.bottomAnchor, constant: 20),
             bpmPickerView.widthAnchor.constraint(equalToConstant: 100),
             bpmPickerView.heightAnchor.constraint(equalToConstant: 200),
             
-            minusTenBpmButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 10),
-            minusTenBpmButton.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            minusTenBpmButton.centerYAnchor.constraint(equalTo: bpmPickerView.centerYAnchor),
+            minusTenBpmButton.trailingAnchor.constraint(equalTo: bpmPickerView.leadingAnchor, constant: -10),
             minusTenBpmButton.widthAnchor.constraint(equalToConstant: 60),
             minusTenBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
-            plusTenBpmButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10),
-            plusTenBpmButton.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            plusTenBpmButton.centerYAnchor.constraint(equalTo: bpmPickerView.centerYAnchor),
+            plusTenBpmButton.leadingAnchor.constraint(equalTo: bpmPickerView.trailingAnchor, constant: 10),
             plusTenBpmButton.widthAnchor.constraint(equalToConstant: 60),
             plusTenBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
+            flashButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            flashButton.trailingAnchor.constraint(equalTo: playButton.leadingAnchor, constant: -10),
+            flashButton.widthAnchor.constraint(equalToConstant: 44),
+            flashButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            playButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            playButton.widthAnchor.constraint(equalToConstant: 44),
+            playButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            settingButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            settingButton.leadingAnchor.constraint(equalTo: playButton.trailingAnchor, constant: 10),
+            settingButton.widthAnchor.constraint(equalToConstant: 44),
+            settingButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            savedBpmTableView.topAnchor.constraint(equalTo: playButton.bottomAnchor, constant: 20),
+            savedBpmTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            savedBpmTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  -10),
+            savedBpmTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
     }
+    
+    // MARK: - Actions
     
     @objc func tappedMinusTen() {
         
     }
     
     @objc func tappedPlusTen() {
+        
+    }
+    
+    @objc func tappedAddNote() {
+        
+    }
+    
+    @objc func tappedRemoveNote() {
+        
+    }
+    
+    @objc func tappedPlay() {
+        
+    }
+    
+    @objc func tappedFlash() {
+        
+    }
+    
+    @objc func tappedSetting() {
         
     }
 }
@@ -160,4 +310,14 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
         return self.view.bounds.height / 10
     }
     
+}
+
+extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return UITableViewCell()
+    }
 }
