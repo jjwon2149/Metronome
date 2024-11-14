@@ -122,6 +122,7 @@ class SingleModeViewController: UIViewController {
     }
 }
 
+// MARK: - UIPickerView Extension
 extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1
@@ -142,14 +143,21 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         // text 회전
-        let modeView = UIView()
-        modeView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let rotateView = UIView()
+        rotateView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         let modeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         modeLabel.textColor = .black
         modeLabel.text = String(mockData[row])
         modeLabel.textAlignment = .center
-        modeView.addSubview(modeLabel)
-        modeView.transform = CGAffineTransform(rotationAngle: 90 * (.pi/180))
-        return modeView
+        modeLabel.font = UIFont.systemFont(ofSize: 28, weight: .bold)
+        rotateView.addSubview(modeLabel)
+        rotateView.transform = CGAffineTransform(rotationAngle: 90 * (.pi/180))
+        
+        return rotateView
     }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return self.view.bounds.height / 10
+    }
+    
 }
