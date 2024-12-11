@@ -19,9 +19,14 @@ extension UIView {
 class SingleModeViewController: UIViewController {
     
     // MARK: - Properties
-    let mockData = Array(1...100)
+    let mockData = Array(1...300)
+    var currentBPM = 0
     let rotationAngle: CGFloat! = -90  * (.pi/180)
-    var noteCount = 4
+    var noteCount = 4 // default 4분음표
+    
+    var timer: Timer?
+    var currentNoteIndex = 0
+    var isPlaying = false
     
     // MARK: - UIComponents
     
@@ -144,35 +149,6 @@ class SingleModeViewController: UIViewController {
         self.view.backgroundColor = .white
         setupUI()
         setupNotesStackView(with: noteCount)
-//
-//        Clock.sync(completion:  { date, offset in
-//            guard let date = date, let offset = offset else {
-//                print("NTP 동기화 실패")
-//                return
-//            }
-//            print("동기화된 시간: \(date)")
-//            print("시계 오프셋: \(offset)초")
-//            
-//            // 로컬 타임존에 맞춘 시간 형식화
-//            let localDateFormatter = DateFormatter()
-//            localDateFormatter.calendar = Calendar.current
-//            localDateFormatter.timeZone = TimeZone.current // 한국 UTC+9
-//            localDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-//            
-//            let localDateString = localDateFormatter.string(from: date)
-//            print("로컬 시간: \(localDateString)")
-//            
-//            // UTC 시간 형식화
-//            let utcDateFormatter = DateFormatter()
-//            utcDateFormatter.calendar = Calendar.current
-//            utcDateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-//            utcDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-//            
-//            let utcDateString = utcDateFormatter.string(from: date)
-//            print("UTC 시간: \(utcDateString)")
-//        })
-        
-        
     }
     
     // MARK: - UI & Layouts
@@ -244,26 +220,104 @@ class SingleModeViewController: UIViewController {
         ])
     }
     
+    /// BPM 업데이트
+    func updateBPMUI() {
+        bpmPickerView.selectRow(currentBPM - 1, inComponent: 0, animated: true)
+    }
+    
+    /// 노트 컬러 업데이트
+    @objc func updateNoteColors() {
+        for (index, view) in notesStackView.arrangedSubviews.enumerated() {
+            if let note = view as? UIImageView {
+                note.tintColor = (index == currentNoteIndex) ? .red : .black
+            }
+        }
+        
+        currentNoteIndex = (currentNoteIndex + 1) % notesStackView.arrangedSubviews.count
+    }
+    
+    /// 노트 개수 업데이트
+    func setupNotesStackView(with noteCount: Int) {
+        notesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        for _ in 1...noteCount {
+            let note = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            note.translatesAutoresizingMaskIntoConstraints = false
+            note.image = UIImage(systemName: "circle.fill")
+            note.tintColor = .black
+            note.contentMode = .scaleAspectFit
+            notesStackView.addArrangedSubview(note)
+        }
+    }
+    
     // MARK: - Actions
     
     @objc func tappedMinusTen() {
+        if currentBPM > 10 {
+            currentBPM -= 10
+            print("Current BPM = \(currentBPM)")
+            updateBPMUI()
+        } else {
+            print("BPM은 0 이하로 설정할 수 없습니다.")
+        }
         
     }
     
     @objc func tappedPlusTen() {
-        
+        if currentBPM < 300 {
+            currentBPM += 10
+            print("Current BPM = \(currentBPM)")
+            updateBPMUI()
+        } else {
+            print("BPM은 300 이상으로 설정할 수 없습니다.")
+        }
     }
     
     @objc func tappedAddNote() {
-        
+        if noteCount < 8 {
+            noteCount += 1
+            setupNotesStackView(with: noteCount)
+        } else {
+            print("노트 개수는 최대 8개까지 설정할 수 있습니다.")
+        }
     }
     
     @objc func tappedRemoveNote() {
-        
+        if noteCount > 4 {
+            noteCount -= 1
+            setupNotesStackView(with: noteCount)
+        } else {
+            print("노트 개수는 최소 4개까지 설정할 수 있습니다.")
+        }
     }
     
     @objc func tappedPlay() {
-        
+        if isPlaying {
+            timer?.invalidate()
+            timer = nil
+            isPlaying = false
+            playButton.configuration?.image = UIImage(systemName: "play.fill")
+            
+            notesStackView.arrangedSubviews.forEach { view in
+                if let note = view as? UIImageView {
+                    note.tintColor = .black
+                }
+            }
+        } else {
+            isPlaying = true
+            playButton.configuration?.image = UIImage(systemName: "pause.fill")
+            
+            // 노트 초기화
+            currentNoteIndex = 0
+            notesStackView.arrangedSubviews.forEach { view in
+                if let note = view as? UIImageView {
+                    note.tintColor = .black
+                }
+            }
+            
+            let interval = 60.0 / Double(currentBPM)
+            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
+        }
     }
     
     @objc func tappedFlash() {
@@ -275,16 +329,7 @@ class SingleModeViewController: UIViewController {
     }
     
     // MARK: - Methods
-    func setupNotesStackView(with noteCount: Int) {
-        notesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        for _ in 1...noteCount {
-            let note = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-            note.image = UIImage(systemName: "circle.fill")
-            note.tintColor = .black
-            notesStackView.addArrangedSubview(note)
-        }
-    }
+    
 }
 
 // MARK: - UIPickerView Extension
@@ -303,6 +348,8 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         print(mockData[row])
+        currentBPM = mockData[row]
+        print("Current BPM = \(currentBPM)")
         pickerView.reloadAllComponents()
     }
     
