@@ -186,6 +186,7 @@ class SingleModeViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         self.view.backgroundColor = .white
+        loadBpmListFromUserDefaults()
         setupUI()
         setupNotesStackView(with: noteCount)
     }
@@ -311,19 +312,6 @@ class SingleModeViewController: UIViewController {
         }
     }
     
-    // MARK: - Methods
-    /// 노트 간의 재생 간격 계산
-    func calculateInterval() -> Double {
-        return 240.0 / (Double(currentBPM) * Double(noteCount))
-    }
-    
-    /// 타이머 리셋
-    func resetTimer() {
-        timer?.invalidate() // 기존 타이머 종료
-        let interval = calculateInterval()
-        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
-    }
-    
     // MARK: - Actions
     
     @objc func tappedMinusTen() {
@@ -429,6 +417,7 @@ class SingleModeViewController: UIViewController {
             
             self.savedBpmList.append(BpmModel(title: title, bpm: bpm))
             self.savedBpmTableView.reloadData()
+            self.saveBpmListToUserDefaults()
             print("✅ Saved: \(title) with BPM \(bpm)")
         }
 
@@ -441,7 +430,41 @@ class SingleModeViewController: UIViewController {
     }
     
     // MARK: - Methods
+    /// 노트 간의 재생 간격 계산
+    func calculateInterval() -> Double {
+        return 240.0 / (Double(currentBPM) * Double(noteCount))
+    }
     
+    /// 타이머 리셋
+    func resetTimer() {
+        timer?.invalidate() // 기존 타이머 종료
+        let interval = calculateInterval()
+        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
+    }
+    
+    /// BPM UserDefaults에 저장
+    func saveBpmListToUserDefaults() {
+        let encoder = JSONEncoder()
+        if let encodedData = try? encoder.encode(savedBpmList) {
+            UserDefaults.standard.set(encodedData, forKey: "savedBpmList")
+            print("✅ Saved BPM list to UserDefaults")
+        } else {
+            print("💥 Failed to save BPM list")
+        }
+    }
+    
+    /// UserDefaults에 저장된 BPM 불러오기
+    func loadBpmListFromUserDefaults() {
+        let decoder = JSONDecoder()
+        if let savedData = UserDefaults.standard.data(forKey: "savedBpmList"),
+           let decodedList = try? decoder.decode([BpmModel].self, from: savedData) {
+            savedBpmList = decodedList
+            savedBpmTableView.reloadData()
+            print("Loaded BPM list from UserDefaults")
+        } else {
+            print("No saved BPM list found")
+        }
+    }
 }
 
 // MARK: - UIPickerView Extension

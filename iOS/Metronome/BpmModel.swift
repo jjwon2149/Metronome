@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BpmModel {
+struct BpmModel: Codable {
     let title: String
     let bpm: Int
 }
