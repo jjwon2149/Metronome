@@ -526,6 +526,7 @@ extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             savedBpmList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
+            saveBpmListToUserDefaults()
         }
     }
     
