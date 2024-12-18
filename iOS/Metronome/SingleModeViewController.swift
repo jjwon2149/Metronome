@@ -28,6 +28,9 @@ class SingleModeViewController: UIViewController {
     var currentNoteIndex = 0
     var isPlaying = false
     
+    var savedBpmList: [BpmModel] = [] // 저장된 BPM
+
+    
     // MARK: - UIComponents
     
     /// notes 스택뷰
@@ -329,7 +332,7 @@ class SingleModeViewController: UIViewController {
             print("Current BPM = \(currentBPM)")
             updateBPMUI()
         } else {
-            print("BPM은 0 이하로 설정할 수 없습니다.")
+            print("💥 BPM은 0 이하로 설정할 수 없습니다.")
         }
         
     }
@@ -349,7 +352,7 @@ class SingleModeViewController: UIViewController {
             noteCount += 1
             setupNotesStackView(with: noteCount)
         } else {
-            print("노트 개수는 최대 8개까지 설정할 수 있습니다.")
+            print("💥 노트 개수는 최대 8개까지 설정할 수 있습니다.")
         }
     }
     
@@ -358,7 +361,7 @@ class SingleModeViewController: UIViewController {
             noteCount -= 1
             setupNotesStackView(with: noteCount)
         } else {
-            print("노트 개수는 최소 4개까지 설정할 수 있습니다.")
+            print("💥 노트 개수는 최소 4개까지 설정할 수 있습니다.")
         }
     }
     
@@ -407,7 +410,34 @@ class SingleModeViewController: UIViewController {
     }
     
     @objc func tappedSaveBpm() {
-        
+        let alert = UIAlertController(title: "Save BPM", message: "Enter a title and BPM", preferredStyle: .alert)
+
+        alert.addTextField { textField in
+            textField.placeholder = "Enter title"
+        }
+        alert.addTextField { textField in
+            textField.placeholder = "Enter BPM"
+            textField.keyboardType = .numberPad
+        }
+
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            guard let title = alert.textFields?[0].text, !title.isEmpty,
+                  let bpmText = alert.textFields?[1].text, let bpm = Int(bpmText), bpm > 0 else {
+                print("💥 잘못된 입력 (tappedSaveBpm())")
+                return
+            }
+            
+            self.savedBpmList.append(BpmModel(title: title, bpm: bpm))
+            self.savedBpmTableView.reloadData()
+            print("✅ Saved: \(title) with BPM \(bpm)")
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true, completion: nil)
     }
     
     // MARK: - Methods
@@ -459,14 +489,30 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
 // MARK: - UITableView Delegate, Datasource
 extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+        return savedBpmList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        let cell = UITableViewCell()
+        let savedBpm = savedBpmList[indexPath.row]
+        cell.textLabel?.text = "\(savedBpm.title) - BPM: \(savedBpm.bpm)"
+        return cell
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            savedBpmList.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedBpm = savedBpmList[indexPath.row]
+        currentBPM = selectedBpm.bpm
+        
+        bpmPickerView.selectRow(currentBPM - 1, inComponent: 0, animated: true)
+        
+        updateBPMUI()
+        
+    }
 }
