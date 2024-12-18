@@ -248,6 +248,23 @@ class SingleModeViewController: UIViewController {
             note.contentMode = .scaleAspectFit
             notesStackView.addArrangedSubview(note)
         }
+        
+        if isPlaying {
+            resetTimer()
+        }
+    }
+    
+    // MARK: - Methods
+    /// 노트 간의 재생 간격 계산
+    func calculateInterval() -> Double {
+        return 240.0 / (Double(currentBPM) * Double(noteCount))
+    }
+    
+    /// 타이머 리셋
+    func resetTimer() {
+        timer?.invalidate() // 기존 타이머 종료
+        let interval = calculateInterval()
+        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
     }
     
     // MARK: - Actions
@@ -315,8 +332,7 @@ class SingleModeViewController: UIViewController {
                 }
             }
             
-            let interval = 60.0 / Double(currentBPM)
-            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
+            resetTimer()
         }
     }
     
