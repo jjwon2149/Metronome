@@ -535,6 +535,8 @@ extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
         
         bpmPickerView.selectRow(currentBPM - 1, inComponent: 0, animated: true)
         
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         updateBPMUI()
         
     }
