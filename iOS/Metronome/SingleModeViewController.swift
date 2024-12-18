@@ -97,7 +97,7 @@ class SingleModeViewController: UIViewController {
     }()
     
     /// 시작 버튼
-    private lazy var playButton: UIButton = {
+    private lazy var togglePlayButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.image = UIImage(systemName: "play.fill")
         config.baseForegroundColor = .black
@@ -109,7 +109,7 @@ class SingleModeViewController: UIViewController {
     }()
     
     /// 노트 시각효과 on/off 버튼
-    private lazy var flashButton: UIButton = {
+    private lazy var toggleFlashButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.image = UIImage(systemName: "flashlight.off.fill")
         config.baseForegroundColor = .black
@@ -128,6 +128,42 @@ class SingleModeViewController: UIViewController {
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
         button.addTarget(self, action: #selector(tappedSetting), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 방 추가 버튼
+    private lazy var openRoomButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "rectangle.portrait.badge.plus")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedOpenRoom), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 방 입장 버튼
+    private lazy var joinRoomButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "rectangle.portrait.and.arrow.right")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedJoinRoom), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 현재 BPM 저장 버튼
+    private lazy var saveBpmButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "tray.and.arrow.down")
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .systemGray
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(tappedSaveBpm), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -161,9 +197,12 @@ class SingleModeViewController: UIViewController {
             bpmPickerView,
             minusTenBpmButton,
             plusTenBpmButton,
-            playButton,
-            flashButton,
+            togglePlayButton,
+            toggleFlashButton,
             settingButton,
+            openRoomButton,
+            saveBpmButton,
+            joinRoomButton,
             savedBpmTableView
         )
         
@@ -198,22 +237,37 @@ class SingleModeViewController: UIViewController {
             plusTenBpmButton.widthAnchor.constraint(equalToConstant: 60),
             plusTenBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
-            flashButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
-            flashButton.trailingAnchor.constraint(equalTo: playButton.leadingAnchor, constant: -10),
-            flashButton.widthAnchor.constraint(equalToConstant: 44),
-            flashButton.heightAnchor.constraint(equalToConstant: 44),
+            toggleFlashButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            toggleFlashButton.trailingAnchor.constraint(equalTo: togglePlayButton.leadingAnchor, constant: -10),
+            toggleFlashButton.widthAnchor.constraint(equalToConstant: 44),
+            toggleFlashButton.heightAnchor.constraint(equalToConstant: 44),
             
-            playButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            playButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
-            playButton.widthAnchor.constraint(equalToConstant: 44),
-            playButton.heightAnchor.constraint(equalToConstant: 44),
+            togglePlayButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            togglePlayButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            togglePlayButton.widthAnchor.constraint(equalToConstant: 44),
+            togglePlayButton.heightAnchor.constraint(equalToConstant: 44),
             
             settingButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
-            settingButton.leadingAnchor.constraint(equalTo: playButton.trailingAnchor, constant: 10),
+            settingButton.leadingAnchor.constraint(equalTo: togglePlayButton.trailingAnchor, constant: 10),
             settingButton.widthAnchor.constraint(equalToConstant: 44),
             settingButton.heightAnchor.constraint(equalToConstant: 44),
             
-            savedBpmTableView.topAnchor.constraint(equalTo: playButton.bottomAnchor, constant: 20),
+            openRoomButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
+            openRoomButton.trailingAnchor.constraint(equalTo: saveBpmButton.leadingAnchor, constant: -10),
+            openRoomButton.widthAnchor.constraint(equalToConstant: 44),
+            openRoomButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            saveBpmButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            saveBpmButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
+            saveBpmButton.widthAnchor.constraint(equalToConstant: 44),
+            saveBpmButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            joinRoomButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
+            joinRoomButton.leadingAnchor.constraint(equalTo: saveBpmButton.trailingAnchor, constant: 10),
+            joinRoomButton.widthAnchor.constraint(equalToConstant: 44),
+            joinRoomButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            savedBpmTableView.topAnchor.constraint(equalTo: saveBpmButton.bottomAnchor, constant: 20),
             savedBpmTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             savedBpmTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  -10),
             savedBpmTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
@@ -313,7 +367,7 @@ class SingleModeViewController: UIViewController {
             timer?.invalidate()
             timer = nil
             isPlaying = false
-            playButton.configuration?.image = UIImage(systemName: "play.fill")
+            togglePlayButton.configuration?.image = UIImage(systemName: "play.fill")
             
             notesStackView.arrangedSubviews.forEach { view in
                 if let note = view as? UIImageView {
@@ -322,7 +376,7 @@ class SingleModeViewController: UIViewController {
             }
         } else {
             isPlaying = true
-            playButton.configuration?.image = UIImage(systemName: "pause.fill")
+            togglePlayButton.configuration?.image = UIImage(systemName: "pause.fill")
             
             // 노트 초기화
             currentNoteIndex = 0
@@ -341,6 +395,18 @@ class SingleModeViewController: UIViewController {
     }
     
     @objc func tappedSetting() {
+        
+    }
+    
+    @objc func tappedOpenRoom() {
+        
+    }
+    
+    @objc func tappedJoinRoom() {
+        
+    }
+    
+    @objc func tappedSaveBpm() {
         
     }
     
@@ -390,6 +456,7 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
     
 }
 
+// MARK: - UITableView Delegate, Datasource
 extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1
@@ -398,4 +465,8 @@ extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         return UITableViewCell()
     }
+    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        <#code#>
+//    }
 }
