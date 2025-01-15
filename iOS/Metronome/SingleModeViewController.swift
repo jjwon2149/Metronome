@@ -20,7 +20,11 @@ class SingleModeViewController: UIViewController {
     
     // MARK: - Properties
     let mockData = Array(1...300)
-    var currentBPM = 0
+    var currentBPM = 0 {
+        didSet {
+            stopMetronome()
+        }
+    }
     let rotationAngle: CGFloat! = -90  * (.pi/180)
     var noteCount = 4 // default 4분음표
     
@@ -48,7 +52,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedAddNote), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedAddNote),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -60,7 +69,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedRemoveNote), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedRemoveNote),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -71,7 +85,9 @@ class SingleModeViewController: UIViewController {
         picker.delegate = self
         picker.dataSource = self
         picker.translatesAutoresizingMaskIntoConstraints = false
-        picker.transform = CGAffineTransform(rotationAngle: rotationAngle) // picker 회전
+        picker.transform = CGAffineTransform(
+            rotationAngle: rotationAngle
+        ) // picker 회전
         return picker
     }()
     
@@ -82,7 +98,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedMinusTen), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedMinusTen),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -94,7 +115,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedPlusTen), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedPlusTen),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -106,7 +132,8 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedPlay), for: .touchUpInside)
+        button
+            .addTarget(self, action: #selector(tappedPlay), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -118,7 +145,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedFlash), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedFlash),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -130,7 +162,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedSetting), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedSetting),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -142,7 +179,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedOpenRoom), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedOpenRoom),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -154,7 +196,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedJoinRoom), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedJoinRoom),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -166,7 +213,12 @@ class SingleModeViewController: UIViewController {
         config.baseForegroundColor = .black
         config.baseBackgroundColor = .systemGray
         let button = UIButton(configuration: config)
-        button.addTarget(self, action: #selector(tappedSaveBpm), for: .touchUpInside)
+        button
+            .addTarget(
+                self,
+                action: #selector(tappedSaveBpm),
+                for: .touchUpInside
+            )
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -210,72 +262,143 @@ class SingleModeViewController: UIViewController {
             savedBpmTableView
         )
         
-        NSLayoutConstraint.activate([
-            notesStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            notesStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            notesStackView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.5),
+        NSLayoutConstraint.activate(
+[
+            notesStackView.centerXAnchor
+                .constraint(equalTo: view.centerXAnchor),
+            notesStackView.topAnchor
+                .constraint(
+                    equalTo: view.safeAreaLayoutGuide.topAnchor,
+                    constant: 20
+                ),
+            notesStackView.widthAnchor
+                .constraint(
+                    equalTo: view.safeAreaLayoutGuide.widthAnchor,
+                    multiplier: 0.5
+                ),
             notesStackView.heightAnchor.constraint(equalToConstant: 60),
             
-            addNoteButton.centerYAnchor.constraint(equalTo: notesStackView.centerYAnchor),
-            addNoteButton.trailingAnchor.constraint(equalTo: notesStackView.leadingAnchor, constant: -10),
+            addNoteButton.centerYAnchor
+                .constraint(equalTo: notesStackView.centerYAnchor),
+            addNoteButton.trailingAnchor
+                .constraint(
+                    equalTo: notesStackView.leadingAnchor,
+                    constant: -10
+                ),
             addNoteButton.widthAnchor.constraint(equalToConstant: 44),
             addNoteButton.heightAnchor.constraint(equalToConstant: 44),
             
-            removeNoteButton.centerYAnchor.constraint(equalTo: notesStackView.centerYAnchor),
-            removeNoteButton.leadingAnchor.constraint(equalTo: notesStackView.trailingAnchor, constant: 10),
+            removeNoteButton.centerYAnchor
+                .constraint(equalTo: notesStackView.centerYAnchor),
+            removeNoteButton.leadingAnchor
+                .constraint(
+                    equalTo: notesStackView.trailingAnchor,
+                    constant: 10
+                ),
             removeNoteButton.widthAnchor.constraint(equalToConstant: 44),
             removeNoteButton.heightAnchor.constraint(equalToConstant: 44),
             
             bpmPickerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            bpmPickerView.topAnchor.constraint(equalTo: notesStackView.bottomAnchor, constant: 20),
+            bpmPickerView.topAnchor
+                .constraint(equalTo: notesStackView.bottomAnchor, constant: 20),
             bpmPickerView.widthAnchor.constraint(equalToConstant: 100),
             bpmPickerView.heightAnchor.constraint(equalToConstant: 200),
             
-            minusTenBpmButton.centerYAnchor.constraint(equalTo: bpmPickerView.centerYAnchor),
-            minusTenBpmButton.trailingAnchor.constraint(equalTo: bpmPickerView.leadingAnchor, constant: -10),
+            minusTenBpmButton.centerYAnchor
+                .constraint(equalTo: bpmPickerView.centerYAnchor),
+            minusTenBpmButton.trailingAnchor
+                .constraint(
+                    equalTo: bpmPickerView.leadingAnchor,
+                    constant: -10
+                ),
             minusTenBpmButton.widthAnchor.constraint(equalToConstant: 60),
             minusTenBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
-            plusTenBpmButton.centerYAnchor.constraint(equalTo: bpmPickerView.centerYAnchor),
-            plusTenBpmButton.leadingAnchor.constraint(equalTo: bpmPickerView.trailingAnchor, constant: 10),
+            plusTenBpmButton.centerYAnchor
+                .constraint(equalTo: bpmPickerView.centerYAnchor),
+            plusTenBpmButton.leadingAnchor
+                .constraint(
+                    equalTo: bpmPickerView.trailingAnchor,
+                    constant: 10
+                ),
             plusTenBpmButton.widthAnchor.constraint(equalToConstant: 60),
             plusTenBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
-            toggleFlashButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
-            toggleFlashButton.trailingAnchor.constraint(equalTo: togglePlayButton.leadingAnchor, constant: -10),
+            toggleFlashButton.topAnchor
+                .constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            toggleFlashButton.trailingAnchor
+                .constraint(
+                    equalTo: togglePlayButton.leadingAnchor,
+                    constant: -10
+                ),
             toggleFlashButton.widthAnchor.constraint(equalToConstant: 44),
             toggleFlashButton.heightAnchor.constraint(equalToConstant: 44),
             
-            togglePlayButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            togglePlayButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            togglePlayButton.centerXAnchor
+                .constraint(equalTo: view.centerXAnchor),
+            togglePlayButton.topAnchor
+                .constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
             togglePlayButton.widthAnchor.constraint(equalToConstant: 44),
             togglePlayButton.heightAnchor.constraint(equalToConstant: 44),
             
-            settingButton.topAnchor.constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
-            settingButton.leadingAnchor.constraint(equalTo: togglePlayButton.trailingAnchor, constant: 10),
+            settingButton.topAnchor
+                .constraint(equalTo: bpmPickerView.bottomAnchor, constant: 20),
+            settingButton.leadingAnchor
+                .constraint(
+                    equalTo: togglePlayButton.trailingAnchor,
+                    constant: 10
+                ),
             settingButton.widthAnchor.constraint(equalToConstant: 44),
             settingButton.heightAnchor.constraint(equalToConstant: 44),
             
-            openRoomButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
-            openRoomButton.trailingAnchor.constraint(equalTo: saveBpmButton.leadingAnchor, constant: -10),
+            openRoomButton.topAnchor
+                .constraint(
+                    equalTo: togglePlayButton.bottomAnchor,
+                    constant: 20
+                ),
+            openRoomButton.trailingAnchor
+                .constraint(
+                    equalTo: saveBpmButton.leadingAnchor,
+                    constant: -10
+                ),
             openRoomButton.widthAnchor.constraint(equalToConstant: 44),
             openRoomButton.heightAnchor.constraint(equalToConstant: 44),
             
             saveBpmButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            saveBpmButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
+            saveBpmButton.topAnchor
+                .constraint(
+                    equalTo: togglePlayButton.bottomAnchor,
+                    constant: 20
+                ),
             saveBpmButton.widthAnchor.constraint(equalToConstant: 44),
             saveBpmButton.heightAnchor.constraint(equalToConstant: 44),
             
-            joinRoomButton.topAnchor.constraint(equalTo: togglePlayButton.bottomAnchor, constant: 20),
-            joinRoomButton.leadingAnchor.constraint(equalTo: saveBpmButton.trailingAnchor, constant: 10),
+            joinRoomButton.topAnchor
+                .constraint(
+                    equalTo: togglePlayButton.bottomAnchor,
+                    constant: 20
+                ),
+            joinRoomButton.leadingAnchor
+                .constraint(
+                    equalTo: saveBpmButton.trailingAnchor,
+                    constant: 10
+                ),
             joinRoomButton.widthAnchor.constraint(equalToConstant: 44),
             joinRoomButton.heightAnchor.constraint(equalToConstant: 44),
             
-            savedBpmTableView.topAnchor.constraint(equalTo: saveBpmButton.bottomAnchor, constant: 20),
-            savedBpmTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            savedBpmTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  -10),
-            savedBpmTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
-        ])
+            savedBpmTableView.topAnchor
+                .constraint(equalTo: saveBpmButton.bottomAnchor, constant: 20),
+            savedBpmTableView.leadingAnchor
+                .constraint(equalTo: view.leadingAnchor, constant: 10),
+            savedBpmTableView.trailingAnchor
+                .constraint(equalTo: view.trailingAnchor, constant:  -10),
+            savedBpmTableView.bottomAnchor
+                .constraint(
+                    equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                    constant: -10
+                )
+]
+        )
     }
     
     /// BPM 업데이트
@@ -291,7 +414,9 @@ class SingleModeViewController: UIViewController {
             }
         }
         
-        currentNoteIndex = (currentNoteIndex + 1) % notesStackView.arrangedSubviews.count
+        currentNoteIndex = (
+            currentNoteIndex + 1
+        ) % notesStackView.arrangedSubviews.count
     }
     
     /// 노트 개수 업데이트
@@ -299,7 +424,9 @@ class SingleModeViewController: UIViewController {
         notesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         for _ in 1...noteCount {
-            let note = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            let note = UIImageView(
+                frame: CGRect(x: 0, y: 0, width: 100, height: 100)
+            )
             note.translatesAutoresizingMaskIntoConstraints = false
             note.image = UIImage(systemName: "circle.fill")
             note.tintColor = .black
@@ -309,6 +436,23 @@ class SingleModeViewController: UIViewController {
         
         if isPlaying {
             resetTimer()
+        }
+    }
+    
+    func stopMetronome() {
+        if isPlaying {
+            timer?.invalidate()
+            timer = nil
+            isPlaying = false
+            togglePlayButton.configuration?.image = UIImage(
+                systemName: "play.fill"
+            )
+            
+            notesStackView.arrangedSubviews.forEach { view in
+                if let note = view as? UIImageView {
+                    note.tintColor = .black
+                }
+            }
         }
     }
     
@@ -323,6 +467,8 @@ class SingleModeViewController: UIViewController {
             print("💥 BPM은 0 이하로 설정할 수 없습니다.")
         }
         
+        // bpm이 진행중이면 Stop
+        stopMetronome()
     }
     
     @objc func tappedPlusTen() {
@@ -333,6 +479,9 @@ class SingleModeViewController: UIViewController {
         } else {
             print("BPM은 300 이상으로 설정할 수 없습니다.")
         }
+        
+        // bpm이 진행중이면 Stop
+        stopMetronome()
     }
     
     @objc func tappedAddNote() {
@@ -358,7 +507,9 @@ class SingleModeViewController: UIViewController {
             timer?.invalidate()
             timer = nil
             isPlaying = false
-            togglePlayButton.configuration?.image = UIImage(systemName: "play.fill")
+            togglePlayButton.configuration?.image = UIImage(
+                systemName: "play.fill"
+            )
             
             notesStackView.arrangedSubviews.forEach { view in
                 if let note = view as? UIImageView {
@@ -367,7 +518,9 @@ class SingleModeViewController: UIViewController {
             }
         } else {
             isPlaying = true
-            togglePlayButton.configuration?.image = UIImage(systemName: "pause.fill")
+            togglePlayButton.configuration?.image = UIImage(
+                systemName: "pause.fill"
+            )
             
             // 노트 초기화
             currentNoteIndex = 0
@@ -390,7 +543,30 @@ class SingleModeViewController: UIViewController {
     }
     
     @objc func tappedOpenRoom() {
+        let alert = UIAlertController(title: "Create Room",
+                                      message: "Please enter the title",
+                                      preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = "Enter room title"
+        }
         
+        // 방 생성 버튼
+        let enterAction = UIAlertAction(title: "Create",
+                                        style: .default,
+                                        handler: { _ in
+            print("방에 입장하였습니다.")
+        })
+        alert.addAction(enterAction)
+        
+        // 취소 버튼
+        let cancelAction = UIAlertAction(title: "Cancel",
+                                         style: .cancel,
+                                         handler: { _ in
+            print("입장 얼럿 엑션 취소")
+        })
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion: nil)
     }
     
     @objc func tappedJoinRoom() {
@@ -398,7 +574,11 @@ class SingleModeViewController: UIViewController {
     }
     
     @objc func tappedSaveBpm() {
-        let alert = UIAlertController(title: "Save BPM", message: "Enter a title and BPM", preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Save BPM",
+            message: "Enter a title and BPM",
+            preferredStyle: .alert
+        )
 
         alert.addTextField { textField in
             textField.placeholder = "Enter title"
@@ -421,7 +601,11 @@ class SingleModeViewController: UIViewController {
             print("✅ Saved: \(title) with BPM \(bpm)")
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(
+            title: "Cancel",
+            style: .cancel,
+            handler: nil
+        )
 
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
@@ -439,7 +623,14 @@ class SingleModeViewController: UIViewController {
     func resetTimer() {
         timer?.invalidate() // 기존 타이머 종료
         let interval = calculateInterval()
-        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateNoteColors), userInfo: nil, repeats: true)
+        timer = Timer
+            .scheduledTimer(
+                timeInterval: interval,
+                target: self,
+                selector: #selector(updateNoteColors),
+                userInfo: nil,
+                repeats: true
+            )
     }
     
     /// BPM UserDefaults에 저장
@@ -457,7 +648,10 @@ class SingleModeViewController: UIViewController {
     func loadBpmListFromUserDefaults() {
         let decoder = JSONDecoder()
         if let savedData = UserDefaults.standard.data(forKey: "savedBpmList"),
-           let decodedList = try? decoder.decode([BpmModel].self, from: savedData) {
+           let decodedList = try? decoder.decode(
+            [BpmModel].self,
+            from: savedData
+           ) {
             savedBpmList = decodedList
             savedBpmTableView.reloadData()
             print("Loaded BPM list from UserDefaults")
@@ -481,7 +675,11 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
         return String(mockData[row])
     }
     
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(
+        _ pickerView: UIPickerView,
+        didSelectRow row: Int,
+        inComponent component: Int
+    ) {
         print(mockData[row])
         currentBPM = mockData[row]
         print("Current BPM = \(currentBPM)")
@@ -492,7 +690,9 @@ extension SingleModeViewController: UIPickerViewDelegate, UIPickerViewDataSource
         // text 회전
         let rotateView = UIView()
         rotateView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-        let modeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let modeLabel = UILabel(
+            frame: CGRect(x: 0, y: 0, width: 100, height: 100)
+        )
         modeLabel.textColor = .black
         modeLabel.text = String(mockData[row])
         modeLabel.textAlignment = .center
@@ -522,7 +722,11 @@ extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
         if editingStyle == .delete {
             savedBpmList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -530,7 +734,10 @@ extension SingleModeViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
         let selectedBpm = savedBpmList[indexPath.row]
         currentBPM = selectedBpm.bpm
         
