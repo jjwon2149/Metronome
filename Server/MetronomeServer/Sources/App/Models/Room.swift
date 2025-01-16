@@ -14,21 +14,17 @@ final class Room: Model, Content {
     @ID(key: .id)
     var id: UUID?
 
-    @Field(key: "name")
-    var name: String
+    @Field(key: "roomTitle")
+    var roomTitle: String // 방 이름
 
     @Field(key: "bpm")
     var bpm: Int // 방에서 공유할 BPM 값
 
-    @Field(key: "creator")
-    var creator: String // 방장 정보
-
     init() {}
 
-    init(id: UUID? = nil, name: String, bpm: Int, creator: String) {
+    init(id: UUID? = nil, roomTitle: String, bpm: Int) {
         self.id = id
-        self.name = name
+        self.roomTitle = roomTitle
         self.bpm = bpm
-        self.creator = creator
     }
 }
