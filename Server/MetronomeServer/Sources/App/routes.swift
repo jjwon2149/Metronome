@@ -16,6 +16,29 @@ func routes(_ app: Application) throws {
         }
         return Room.find(roomId, on: req.db).unwrap(or: Abort(.notFound))
     }
+    
+    // 방 입장 (roomTitle로)
+    app.get("rooms", "join", ":roomTitle") { req -> EventLoopFuture<Room> in
+        guard let roomTitle = req.parameters.get("roomTitle") else {
+            throw Abort(.badRequest, reason: "Invalid room title")
+        }
+        return Room.query(on: req.db)
+            .filter(\.$roomTitle == roomTitle)
+            .first()
+            .unwrap(
+                or: Abort(
+                    .notFound,
+                    reason: "Room with title '\(roomTitle)' not found"
+                )
+            )
+            .map { room in
+                Room(
+                    id: room.id!,
+                    roomTitle: room.roomTitle,
+                    bpm: room.bpm
+                )
+            }
+    }
 
     // bpm 변경시
     app.put("rooms", ":id") { req -> EventLoopFuture<Room> in
