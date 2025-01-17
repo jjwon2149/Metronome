@@ -13,6 +13,7 @@ struct CreateRoom: AsyncMigration {
             .id()
             .field("roomTitle", .string, .required)
             .field("bpm", .int, .required)
+            .field("startTime", .datetime, .required)
             .create()
     }
     func revert(on database: any FluentKit.Database) async throws {
