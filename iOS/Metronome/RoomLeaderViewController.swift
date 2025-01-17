@@ -1,5 +1,5 @@
 //
-//  PartyModeViewController.swift
+//  RoomLeaderViewController.swift
 //  Metronome
 //
 //  Created by 정종원 on 11/13/24.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PartyModeViewController: UIViewController {
+class RoomLeaderViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
