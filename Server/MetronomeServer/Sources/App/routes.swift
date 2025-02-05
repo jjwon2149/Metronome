@@ -17,7 +17,7 @@ func routes(_ app: Application) throws {
         }
         return Room.find(roomId, on: req.db).unwrap(or: Abort(.notFound))
     }
-    
+
     // 방 입장 (roomTitle로)
     app.get("rooms", "join", ":roomTitle") { req -> EventLoopFuture<Room> in
         guard let roomTitle = req.parameters.get("roomTitle") else {
@@ -50,7 +50,8 @@ func routes(_ app: Application) throws {
         let room = try req.content.decode(Room.self)
         return Room.find(roomId, on: req.db).flatMap { existingRoom in
             guard let existingRoom = existingRoom else {
-                return req.eventLoop.future(error: Abort(.notFound, reason: "Room not found"))
+                return req.eventLoop.future(
+                    error: Abort(.notFound, reason: "Room not found"))
             }
             existingRoom.bpm = room.bpm
             return existingRoom.save(on: req.db).map { existingRoom }
@@ -64,16 +65,18 @@ func routes(_ app: Application) throws {
             ws.close(promise: nil)
             return
         }
-        
-        WebSocketManager.shared.add(ws, to: roomId) // 웹소켓 연결 추가
-        
+
+        WebSocketManager.shared.add(ws, to: roomId)  // 웹소켓 연결 추가
+
         ws.onText { ws, text in
             guard let data = text.data(using: .utf8),
-                  let message = try? JSONDecoder().decode(MetronomeMessage.self, from: data) else {
+                let message = try? JSONDecoder().decode(
+                    MetronomeMessage.self, from: data)
+            else {
                 ws.send("Invalid message format")
                 return
             }
-            
+
             switch message.action {
             case .start:
                 // 메트로놈 시작 메시지 처리
@@ -98,10 +101,11 @@ func routes(_ app: Application) throws {
                             if let jsonData = try? JSONEncoder().encode(
                                 broadcastMessage
                             ),
-                               let jsonString = String(
-                                data: jsonData,
-                                encoding: .utf8
-                               ) {
+                                let jsonString = String(
+                                    data: jsonData,
+                                    encoding: .utf8
+                                )
+                            {
                                 WebSocketManager.shared
                                     .broadcast(to: roomId, message: jsonString)
                             }
@@ -131,10 +135,11 @@ func routes(_ app: Application) throws {
                             if let jsonData = try? JSONEncoder().encode(
                                 broadcastMessage
                             ),
-                               let jsonString = String(
-                                data: jsonData,
-                                encoding: .utf8
-                               ) {
+                                let jsonString = String(
+                                    data: jsonData,
+                                    encoding: .utf8
+                                )
+                            {
                                 WebSocketManager.shared
                                     .broadcast(to: roomId, message: jsonString)
                             }
@@ -145,7 +150,7 @@ func routes(_ app: Application) throws {
                 }
             }
         }
-        
+
         ws.onClose.whenComplete { _ in
             WebSocketManager.shared.remove(ws, from: roomId)
         }
@@ -156,22 +161,24 @@ func routes(_ app: Application) throws {
     try app.register(collection: roomController)
 }
 
-
 class WebSocketManager {
     static let shared = WebSocketManager()
     private var connections: [UUID: [WebSocket]] = [:]
-    
+
     func add(_ ws: WebSocket, to roomId: UUID) {
         if connections[roomId] == nil {
             connections[roomId] = []
         }
         connections[roomId]?.append(ws)
     }
-    
+
     func remove(_ ws: WebSocket, from roomId: UUID) {
         connections[roomId]?.removeAll(where: { $0 === ws })
+        if connections[roomId]?.isEmpty == true {
+            connections.removeValue(forKey: roomId)
+        }
     }
-    
+
     func broadcast(to roomId: UUID, message: String) {
         connections[roomId]?.forEach { ws in
             ws.send(message)
@@ -184,7 +191,7 @@ struct MetronomeMessage: Codable {
         case start
         case updateBPM
     }
-    
+
     let action: Action
     let bpm: Int?
     let startTime: String?

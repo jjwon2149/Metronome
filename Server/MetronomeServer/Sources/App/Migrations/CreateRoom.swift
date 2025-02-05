@@ -15,6 +15,7 @@ struct CreateRoom: AsyncMigration {
             .field("bpm", .int, .required)
             .field("startTime", .datetime, .required)
             .create()
+//            .update()
     }
     func revert(on database: any FluentKit.Database) async throws {
         try await database.schema("rooms").delete()
